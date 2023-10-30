@@ -1,25 +1,135 @@
-import logo from './logo.svg';
-import './App.css';
+import {
+  DynamicContextProvider,
+  DynamicWidget,
+  useDynamicContext,
+  useEmbeddedWallet,
+} from "@dynamic-labs/sdk-react-core";
+import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
+import { useEffect, useState } from "react";
+import { SdkViewSectionType, SdkViewType } from "@dynamic-labs/sdk-api";
 
-function App() {
+const WALLET_VIEW = {
+  type: SdkViewType.Login,
+  sections: [
+    {
+      type: SdkViewSectionType.Wallet,
+    },
+  ],
+};
+
+const EMAIL_SSO_VIEW = {
+  type: SdkViewType.Login,
+  sections: [
+    {
+      type: SdkViewSectionType.Email,
+    },
+    {
+      type: SdkViewSectionType.Separator,
+      label: "Or",
+    },
+    {
+      type: SdkViewSectionType.Social,
+      defaultItem: "google",
+    },
+  ],
+};
+
+const SSO_AND_WALLETS_VIEW = {
+  type: SdkViewType.Login,
+  sections: [
+    { type: SdkViewSectionType.Wallet },
+    {
+      type: SdkViewSectionType.Separator,
+      label: "Or",
+    },
+    {
+      type: SdkViewSectionType.Email,
+    },
+    {
+      type: SdkViewSectionType.Separator,
+      label: "Or",
+    },
+    {
+      type: SdkViewSectionType.Social,
+      defaultItem: "google",
+    },
+  ],
+};
+
+const FLAVORS = {
+  Wallets: "wallet",
+  EmailSso: "emailSso",
+  EmbeddedAndWallets: "embeddedAndWallets",
+};
+
+const Demo = ({ setViewOverrides }) => {
+  const [flavor, setFlavor] = useState(FLAVORS.Wallets);
+  const { user } = useDynamicContext();
+  const { createEmbeddedWallet, userHasEmbeddedWallet } = useEmbeddedWallet();
+
+  const createWalletIfNeeded = async () => {
+    if (!userHasEmbeddedWallet()) {
+      try {
+        const walletId = await createEmbeddedWallet();
+        console.log("created wallet: ", walletId);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (flavor === FLAVORS.Wallets) {
+      setViewOverrides([WALLET_VIEW]);
+    } else if (flavor === FLAVORS.EmailSso) {
+      setViewOverrides([EMAIL_SSO_VIEW]);
+    } else if (flavor === FLAVORS.EmbeddedAndWallets) {
+      setViewOverrides([SSO_AND_WALLETS_VIEW]);
+    }
+  }, [flavor]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <button type="button" onClick={() => setFlavor(FLAVORS.Wallets)}>
+        {" "}
+        Wallets only{" "}
+      </button>
+      <button type="button" onClick={() => setFlavor(FLAVORS.EmailSso)}>
+        {" "}
+        Email and SSO{" "}
+      </button>
+      <button
+        type="button"
+        onClick={() => setFlavor(FLAVORS.EmbeddedAndWallets)}
+      >
+        {" "}
+        Embeded and Wallets{" "}
+      </button>
+
+      {user && flavor === FLAVORS.EmbeddedAndWallets && (
+        <button type="button" onClick={() => createWalletIfNeeded()}>
+          {" "}
+          createEmbeddedWallet{" "}
+        </button>
+      )}
     </div>
   );
-}
+};
+
+const App = () => {
+  const [viewOverrides, setViewOverrides] = useState([]);
+  return (
+    <DynamicContextProvider
+      settings={{
+        environmentId: "fba5127c-21c0-430e-bb03-7dc8f6b11397",
+        walletConnectors: [EthereumWalletConnectors],
+        overrides: { views: viewOverrides },
+      }}
+    >
+      <DynamicWidget />
+      <Demo setViewOverrides={setViewOverrides} />
+    </DynamicContextProvider>
+  );
+};
 
 export default App;
