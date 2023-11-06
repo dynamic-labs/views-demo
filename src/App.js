@@ -4,6 +4,7 @@ import {
   useDynamicContext,
   useEmbeddedWallet,
 } from "@dynamic-labs/sdk-react-core";
+import { MagicWalletConnectors } from "@dynamic-labs/magic";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { useEffect, useState } from "react";
 import { SdkViewSectionType, SdkViewType } from "@dynamic-labs/sdk-api";
@@ -122,7 +123,7 @@ const App = () => {
     <DynamicContextProvider
       settings={{
         environmentId: "fba5127c-21c0-430e-bb03-7dc8f6b11397",
-        walletConnectors: [EthereumWalletConnectors],
+        walletConnectors: [EthereumWalletConnectors, MagicWalletConnectors],
         overrides: { views: viewOverrides },
       }}
     >
