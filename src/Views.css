@@ -1,0 +1,11 @@
+.container {
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.view-button {
+  margin: 0 0.75rem;
+}

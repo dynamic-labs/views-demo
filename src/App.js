@@ -9,6 +9,8 @@ import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { useEffect, useState } from "react";
 import { SdkViewSectionType, SdkViewType } from "@dynamic-labs/sdk-api";
 
+import "./Views.css";
+
 const WALLET_VIEW = {
   type: SdkViewType.Login,
   sections: [
@@ -67,6 +69,7 @@ const Demo = ({ setViewOverrides }) => {
   const [flavor, setFlavor] = useState(FLAVORS.Wallets);
   const { user } = useDynamicContext();
   const { createEmbeddedWallet, userHasEmbeddedWallet } = useEmbeddedWallet();
+  const { setShowAuthFlow } = useDynamicContext();
 
   const createWalletIfNeeded = async () => {
     if (!userHasEmbeddedWallet()) {
@@ -90,21 +93,39 @@ const Demo = ({ setViewOverrides }) => {
   }, [flavor]);
 
   return (
-    <div>
-      <button type="button" onClick={() => setFlavor(FLAVORS.Wallets)}>
+    <div className="container">
+      <button
+        className="view-button"
+        type="button"
+        onClick={() => {
+          setFlavor(FLAVORS.Wallets);
+          setShowAuthFlow(true);
+        }}
+      >
         {" "}
         Wallets only{" "}
       </button>
-      <button type="button" onClick={() => setFlavor(FLAVORS.EmailSso)}>
+      <button
+        className="view-button"
+        type="button"
+        onClick={() => {
+          setFlavor(FLAVORS.EmailSso);
+          setShowAuthFlow(true);
+        }}
+      >
         {" "}
         Email and SSO{" "}
       </button>
       <button
+        className="view-button"
         type="button"
-        onClick={() => setFlavor(FLAVORS.EmbeddedAndWallets)}
+        onClick={() => {
+          setFlavor(FLAVORS.EmbeddedAndWallets);
+          setShowAuthFlow(true);
+        }}
       >
         {" "}
-        Embeded and Wallets{" "}
+        Embedded and Wallets{" "}
       </button>
 
       {user && flavor === FLAVORS.EmbeddedAndWallets && (
@@ -120,16 +141,18 @@ const Demo = ({ setViewOverrides }) => {
 const App = () => {
   const [viewOverrides, setViewOverrides] = useState([]);
   return (
-    <DynamicContextProvider
-      settings={{
-        environmentId: "fba5127c-21c0-430e-bb03-7dc8f6b11397",
-        walletConnectors: [EthereumWalletConnectors, MagicWalletConnectors],
-        overrides: { views: viewOverrides },
-      }}
-    >
-      <DynamicWidget />
-      <Demo setViewOverrides={setViewOverrides} />
-    </DynamicContextProvider>
+    <div className="app">
+      <DynamicContextProvider
+        settings={{
+          environmentId: "fba5127c-21c0-430e-bb03-7dc8f6b11397",
+          walletConnectors: [EthereumWalletConnectors, MagicWalletConnectors],
+          overrides: { views: viewOverrides },
+        }}
+      >
+        <DynamicWidget />
+        <Demo setViewOverrides={setViewOverrides} />
+      </DynamicContextProvider>
+    </div>
   );
 };
 
